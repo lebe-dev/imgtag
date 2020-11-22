@@ -7,13 +7,15 @@ pub mod commands_tests {
 
     const RESULTS_DIR_NAME: &str = "results";
 
+    const FILE_WITHOUT_DATE_IN_EXIF: &str = "/2013/Май/2013-05-17__manga__berserk__forest.jpg";
+
     #[test]
     fn date_should_extracted_from_path_for_files_without_exif() {
         remove_results_dir();
 
-        reorganize_files("img-src", "results", true);
+        reorganize_files("img-src", RESULTS_DIR_NAME, true);
 
-        let expected_result_filename = format!("{}/2013/Май/2013-05-17__manga__berserk__forest.jpg", RESULTS_DIR_NAME);
+        let expected_result_filename = format!("{}/{}", RESULTS_DIR_NAME, FILE_WITHOUT_DATE_IN_EXIF);
         let expected_result_file = Path::new(&expected_result_filename);
 
         assert!(expected_result_file.exists());
@@ -23,7 +25,7 @@ pub mod commands_tests {
     fn result_filename_should_be_stored_in_year_directory() {
         remove_results_dir();
 
-        reorganize_files("img-src", "results", false);
+        reorganize_files("img-src", RESULTS_DIR_NAME, false);
 
         let expected_result_filename = format!("{}/2020/Октябрь/2020-10-10__12-09-47__IMG_20201010_120947.jpg", RESULTS_DIR_NAME);
         let expected_result_file = Path::new(&expected_result_filename);
@@ -38,7 +40,7 @@ pub mod commands_tests {
 
         remove_results_dir();
 
-        reorganize_files("img-src", "results", false);
+        reorganize_files("img-src", RESULTS_DIR_NAME, false);
 
         let expected_result_filename = format!("{}/2013/Май/2013-05-17__manga__berserk__forest.jpg", RESULTS_DIR_NAME);
         let expected_result_file = Path::new(&expected_result_filename);
