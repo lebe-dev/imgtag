@@ -9,19 +9,8 @@ pub mod path_parser_tests {
 
         assert_eq!(results.len(), 2);
 
-        let first_date = results.iter().find(|date| {
-                date.year() == 2019 && date.month() == 11 && date.day() == 23
-            }
-        );
-
-        assert!(first_date.is_some());
-
-        let second_date = results.iter().find(|date| {
-                date.year() == 2019 && date.month() == 5 && date.day() == 27
-            }
-        );
-
-        assert!(second_date.is_some());
+        assert!(vec_contains_date(&results, 2019, 11, 23));
+        assert!(vec_contains_date(&results, 2019, 5, 27));
     }
 
     #[test]
@@ -30,19 +19,8 @@ pub mod path_parser_tests {
 
         assert_eq!(results.len(), 2);
 
-        let first_date = results.iter().find(|date| {
-            date.year() == 2018 && date.month() == 1 && date.day() == 7
-        }
-        );
-
-        assert!(first_date.is_some());
-
-        let second_date = results.iter().find(|date| {
-            date.year() == 2013 && date.month() == 5 && date.day() == 3
-        }
-        );
-
-        assert!(second_date.is_some());
+        assert!(vec_contains_date(&results, 2018, 1, 7));
+        assert!(vec_contains_date(&results, 2013, 5, 3));
     }
 
     #[test]
@@ -52,13 +30,7 @@ pub mod path_parser_tests {
         assert_eq!(results.len(), 2);
 
         assert!(vec_contains_date(&results, 2019, 10, 29));
-
-        let second_date = results.iter().find(|date| {
-            date.year() == 2017 && date.month() == 2 && date.day() == 11
-        }
-        );
-
-        assert!(second_date.is_some());
+        assert!(vec_contains_date(&results, 2017, 2, 11));
     }
 
     fn vec_contains_date(vec: &Vec<NaiveDate>, year: i32, month: u32, day: u32) -> bool {
