@@ -25,4 +25,25 @@ pub mod path_parser_tests {
 
         assert!(second_date.is_some());
     }
+
+    #[test]
+    fn dates_in_yyyy_mm_dd_should_be_extracted() {
+        let results = get_dates_from_path("/mnt/pics/2018-01-07/2013-05-03_IMG_14523.jpg");
+
+        assert_eq!(results.len(), 2);
+
+        let first_date = results.iter().find(|date| {
+            date.year() == 2018 && date.month() == 1 && date.day() == 7
+        }
+        );
+
+        assert!(first_date.is_some());
+
+        let second_date = results.iter().find(|date| {
+            date.year() == 2013 && date.month() == 5 && date.day() == 3
+        }
+        );
+
+        assert!(second_date.is_some());
+    }
 }
