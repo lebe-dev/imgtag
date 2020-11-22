@@ -7,15 +7,17 @@ pub mod path_parser {
 
         info!("extract date form path '{}'", path);
 
-        results.extend(
-        extract_dates_from_path("(\\d{4}\\d{2}\\d{2})", "%Y%m%d", path)
-        );
-        results.extend(
-        extract_dates_from_path("(\\d{4}-\\d{2}-\\d{2})", "%Y-%m-%d", path)
-        );
-        results.extend(
-            extract_dates_from_path("(\\d{4}.\\d{2}.\\d{2})", "%Y.%m.%d", path)
-        );
+        let date_formats: Vec<(&str, &str)> = vec![
+            ("(\\d{4}\\d{2}\\d{2})", "%Y%m%d"),
+            ("(\\d{4}-\\d{2}-\\d{2})", "%Y-%m-%d"),
+            ("(\\d{4}.\\d{2}.\\d{2})", "%Y.%m.%d")
+        ];
+
+        for date_format in date_formats.iter() {
+            results.extend(
+            extract_dates_from_path(date_format.0, date_format.1, path)
+            );
+        }
 
         results
     }
