@@ -31,15 +31,6 @@ fn main() {
         .version("0.1.0 BETA")
         .about("Image tagging tool")
         .arg(
-            Arg::with_name(EXTRACT_DATE_FROM_PATH_OPTION)
-                .help("try to extract date from file path for files without EXIF. \
-                         Supported date formats: yyyyMMdd, yyyy-MM-dd, yyyy.MM.dd. \
-                         Takes the nearest date to filename.")
-                .long(EXTRACT_DATE_FROM_PATH_OPTION)
-                .takes_value(false)
-                .required(false)
-        )
-        .arg(
             Arg::with_name(LOG_LEVEL_ARGUMENT)
                 .help("set logging level. possible values: debug, info, error, warn, trace")
                 .long(LOG_LEVEL_ARGUMENT)
@@ -62,6 +53,15 @@ fn main() {
                     .help("destination path")
                     .value_name(DEST_PATH_ARG)
                     .takes_value(true).required(true)
+            )
+            .arg(
+                Arg::with_name(EXTRACT_DATE_FROM_PATH_OPTION)
+                    .help("try to extract date from file path for files without EXIF. \
+                         Supported date formats: yyyyMMdd, yyyy-MM-dd, yyyy.MM.dd. \
+                         Takes the nearest date to filename.")
+                    .long(EXTRACT_DATE_FROM_PATH_OPTION)
+                    .takes_value(false)
+                    .required(false)
             )
         )
         .get_matches();
