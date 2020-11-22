@@ -3,8 +3,6 @@ pub mod path_parser_tests {
     use crate::path_parser::path_parser::get_dates_from_path;
     use chrono::Datelike;
 
-    const DATE_COMPARE_FORMAT: &str = "%Y-%m-%d %H:%M:%S";
-
     #[test]
     fn dates_in_yyyymmdd_should_be_extracted() {
         let results = get_dates_from_path("/mnt/pics/20191123/20190527_IMG_14523.jpg");
@@ -41,6 +39,27 @@ pub mod path_parser_tests {
 
         let second_date = results.iter().find(|date| {
             date.year() == 2013 && date.month() == 5 && date.day() == 3
+        }
+        );
+
+        assert!(second_date.is_some());
+    }
+
+    #[test]
+    fn dates_in_yyyy_dot_mm_dot_dd_should_be_extracted() {
+        let results = get_dates_from_path("/mnt/pics/2019.10.29/2017.02.11_petya_71.jpg");
+
+        assert_eq!(results.len(), 2);
+
+        let first_date = results.iter().find(|date| {
+            date.year() == 2019 && date.month() == 10 && date.day() == 29
+        }
+        );
+
+        assert!(first_date.is_some());
+
+        let second_date = results.iter().find(|date| {
+            date.year() == 2017 && date.month() == 2 && date.day() == 11
         }
         );
 

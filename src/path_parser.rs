@@ -13,6 +13,9 @@ pub mod path_parser {
         results.extend(
         extract_dates_from_path("(\\d{4}-\\d{2}-\\d{2})", "%Y-%m-%d", path)
         );
+        results.extend(
+            extract_dates_from_path("(\\d{4}.\\d{2}.\\d{2})", "%Y.%m.%d", path)
+        );
 
         results
     }
