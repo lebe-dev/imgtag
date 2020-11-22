@@ -2,7 +2,7 @@ pub mod commands {
     use std::{io, fs};
     use rexif::{ExifError, ExifTag};
     use std::path::Path;
-    use chrono::{NaiveDateTime, Datelike};
+    use chrono::{NaiveDateTime, Datelike, ParseError};
     use crate::path_parser::path_parser::get_dates_from_path;
 
     pub fn reorganize_files(src_path: &str, dest_path: &str,
@@ -23,9 +23,15 @@ pub mod commands {
                         Ok(date_created) => {
                             match date_created {
                                 Some(file_datetime) => {
-                                    info!("date created: {}", file_datetime);
+                                    let (result_path, result_file_path) = get_dest_path_and_filepath(
+                                        dest_path, file_name, file_datetime
+                                    );
 
-                                    reorganize_file(dest_path, &file_path_str, file_datetime, file_name);
+                                    reorganize_file(
+                                        file_datetime.year(), dest_path,
+                                        &file_path_str, &result_path,
+                                        &result_file_path
+                                    );
                                 }
                                 None => {
                                     warn!("file '{}' doesn't contain date in EXIF meta-data", file_name);
@@ -35,6 +41,7 @@ pub mod commands {
 
                                         if !extracted_dates.is_empty() {
                                             let file_date = extracted_dates.last().unwrap();
+
                                             let result_date_format = file_date.format("%Y-%m-%d");
                                             let result_filename = format!("{}__{}", result_date_format, file_name);
                                             info!("result filename: '{}'", result_filename);
@@ -186,32 +193,32 @@ pub mod commands {
         }
     }
 
-    fn reorganize_file(dest_path: &str, file_path: &str,
-                       file_datetime: NaiveDateTime, file_name: &str) -> Result<(), io::Error> {
-        info!("date created: {}", file_datetime);
-
+    fn get_dest_path_and_filepath(root_dest_path: &str, original_file_name: &str, file_datetime: NaiveDateTime) -> (String, String) {
         let result_datetime_format = file_datetime.format("%Y-%m-%d__%H-%M-%S");
 
-        let result_filename = format!("{}__{}", result_datetime_format, file_name);
+        let result_filename = format!("{}__{}", result_datetime_format, original_file_name);
 
         info!("result filename: '{}'", result_filename);
 
-        create_year_dir_if_not_exists(dest_path, file_datetime.year())?;
-
         let month_name = get_month_name(file_datetime.month());
 
-        let result_path = format!("{}/{}/{}", dest_path, file_datetime.year(), month_name);
+        let result_path = format!("{}/{}/{}", root_dest_path, file_datetime.year(), month_name);
         info!("result_path: '{}'", result_path);
 
-        match fs::create_dir_all(&result_path) {
+        let result_file_path = format!("{}/{}", &result_path, result_filename);
+
+        (result_path, result_file_path)
+    }
+
+    fn reorganize_file(year: i32, root_dest_path: &str, src_file_path: &str,
+                       dest_path: &str, dest_file_path: &str) -> Result<(), io::Error> {
+        create_year_dir_if_not_exists(root_dest_path, year)?;
+
+        match fs::create_dir_all(&dest_path) {
             Ok(_) => {
-                let result_file_path = format!("{}/{}", &result_path, result_filename);
+                info!("copy '{}' > '{}'", &src_file_path, &dest_file_path);
 
-                info!("result file path '{}'", result_file_path);
-
-                info!("copy '{}' > '{}'", &file_path, result_file_path);
-
-                match fs::copy(&file_path, &result_file_path) {
+                match fs::copy(&src_file_path, &dest_file_path) {
                     Ok(_) => {
                         info!("file has been copied");
                         Ok(())
@@ -223,7 +230,7 @@ pub mod commands {
                 }
             }
             Err(e) => {
-                error!("unable to create path '{}': {}", result_path, e);
+                error!("unable to create path '{}': {}", &dest_path, e);
                 Err(e)
             }
         }
