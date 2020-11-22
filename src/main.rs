@@ -48,7 +48,8 @@ fn main() {
                 .default_value(LOG_LEVEL_DEFAULT_VALUE)
         )
         .subcommand(SubCommand::with_name(REORGANIZE_COMMAND)
-            .about("reorganize JPG files in hierarchy YYYY/Month/YYYY-MM-DD__filename.jpg. \
+            .about("reorganize JPG files in hierarchy YYYY/Month/YYYY-MM-DD__filename.jpg or \
+                YYYY/Month/YYYY-MM-DD__HH-MM-SS__filename.jpg \
             Extract picture taken date from EXIF meta-data.")
             .arg(
                 Arg::with_name(SRC_PATH_ARG)
@@ -85,7 +86,7 @@ fn main() {
 
             match reorganize_files(src_path, dest_path, extract_dates_from_path) {
                 Ok(_) => {
-                    println!("files have been reorganized :D");
+                    println!("files have been reorganized");
                     exit(0);
                 }
                 Err(e) => {
