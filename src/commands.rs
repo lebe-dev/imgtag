@@ -43,25 +43,12 @@ pub mod commands {
                                     warn!("file '{}' doesn't contain date in EXIF meta-data", file_name);
 
                                     if extract_dates_from_path {
-                                        let extracted_dates = get_dates_from_path(&file_path_str);
-
-                                        if !extracted_dates.is_empty() {
-                                            let file_date = extracted_dates.last().unwrap();
-
-                                            let (result_path, result_file_path) = get_dest_path_and_filepath_with_date(
-                                                dest_path, file_name, file_date
-                                            );
-
-                                            match reorganize_file(
-                                                file_date.year(), dest_path,
-                                                &file_path_str, &result_path,
-                                                &result_file_path
-                                            ) {
-                                                Ok(_) => {}
-                                                Err(_) => has_errors = true
-                                            }
+                                        match reorganize_file_without_exif(
+                                            &file_path_str, dest_path, file_name
+                                        ) {
+                                            Ok(_) => {}
+                                            Err(_) => has_errors = true
                                         }
-
                                     }
                                 }
                             }
