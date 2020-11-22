@@ -25,38 +25,7 @@ pub mod commands {
                                 Some(file_datetime) => {
                                     info!("date created: {}", file_datetime);
 
-                                    let result_datetime_format = file_datetime.format("%Y-%m-%d__%H-%M-%S");
-
-                                    let result_filename = format!("{}__{}", result_datetime_format, file_name);
-
-                                    info!("result filename: '{}'", result_filename);
-
-                                    create_year_dir_if_not_exists(dest_path, file_datetime.year())?;
-
-                                    let month_name = get_month_name(file_datetime.month());
-
-                                    let result_path = format!("{}/{}/{}", dest_path, file_datetime.year(), month_name);
-                                    info!("result_path: '{}'", result_path);
-
-                                    match fs::create_dir_all(&result_path) {
-                                        Ok(_) => {
-                                            let result_file_path = format!("{}/{}", &result_path, result_filename);
-
-                                            info!("result file path '{}'", result_file_path);
-
-                                            info!("copy '{}' > '{}'", &file_path_str, result_file_path);
-
-                                            match fs::copy(&file_path_str, &result_file_path) {
-                                                Ok(_) => {
-                                                    info!("file has been copied");
-                                                }
-                                                Err(e) => {
-                                                    error!("unable to copy file to destination: {}", e);
-                                                }
-                                            }
-                                        }
-                                        Err(e) => error!("unable to create path '{}': {}", result_path, e)
-                                    }
+                                    reorganize_file(dest_path, &file_path_str, file_datetime, file_name);
                                 }
                                 None => {
                                     warn!("file '{}' doesn't contain date in EXIF meta-data", file_name);
@@ -212,6 +181,49 @@ pub mod commands {
             },
             Err(e) => {
                 error!("unable to extract exif properties from '{}': {}", file_path, e);
+                Err(e)
+            }
+        }
+    }
+
+    fn reorganize_file(dest_path: &str, file_path: &str,
+                       file_datetime: NaiveDateTime, file_name: &str) -> Result<(), io::Error> {
+        info!("date created: {}", file_datetime);
+
+        let result_datetime_format = file_datetime.format("%Y-%m-%d__%H-%M-%S");
+
+        let result_filename = format!("{}__{}", result_datetime_format, file_name);
+
+        info!("result filename: '{}'", result_filename);
+
+        create_year_dir_if_not_exists(dest_path, file_datetime.year())?;
+
+        let month_name = get_month_name(file_datetime.month());
+
+        let result_path = format!("{}/{}/{}", dest_path, file_datetime.year(), month_name);
+        info!("result_path: '{}'", result_path);
+
+        match fs::create_dir_all(&result_path) {
+            Ok(_) => {
+                let result_file_path = format!("{}/{}", &result_path, result_filename);
+
+                info!("result file path '{}'", result_file_path);
+
+                info!("copy '{}' > '{}'", &file_path, result_file_path);
+
+                match fs::copy(&file_path, &result_file_path) {
+                    Ok(_) => {
+                        info!("file has been copied");
+                        Ok(())
+                    }
+                    Err(e) => {
+                        error!("unable to copy file to destination: {}", e);
+                        Err(e)
+                    }
+                }
+            }
+            Err(e) => {
+                error!("unable to create path '{}': {}", result_path, e);
                 Err(e)
             }
         }
