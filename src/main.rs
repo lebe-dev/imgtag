@@ -39,7 +39,7 @@ fn main() {
                 .default_value(LOG_LEVEL_DEFAULT_VALUE)
         )
         .subcommand(SubCommand::with_name(REORGANIZE_COMMAND)
-            .about("reorganize JPG files in hierarchy YYYY/Month/YYYY-MM-DD__filename.jpg or \
+            .about("reorganize JPG\\TIFF files in hierarchy YYYY/Month/YYYY-MM-DD__filename.jpg or \
                 YYYY/Month/YYYY-MM-DD__HH-MM-SS__filename.jpg \
             Extract picture taken date from EXIF meta-data.")
             .arg(
