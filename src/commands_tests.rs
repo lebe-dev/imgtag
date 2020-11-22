@@ -8,7 +8,6 @@ pub mod commands_tests {
     const SOURCE_DIR_NAME: &str = "img-src";
     const RESULTS_DIR_NAME: &str = "results";
 
-    const EXPECTED_FILE_WITH_DATE_IN_EXIF: &str = "/2013/Май/2013-05-17__manga__berserk__forest.jpg";
     const EXPECTED_FILE_WITHOUT_DATE_IN_EXIF: &str = "/2013/Май/2013-05-17__manga__berserk__forest.jpg";
 
     #[test]

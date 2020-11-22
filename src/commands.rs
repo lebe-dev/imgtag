@@ -22,14 +22,8 @@ pub mod commands {
                     match get_date_created_from_file_exif(&file_path_str) {
                         Ok(date_created) => {
                             match date_created {
-                                Some(value) => {
-                                    info!("date created: {}", value);
-
-                                    let file_datetime = NaiveDateTime::parse_from_str(
-                                        &value, "%Y:%m:%d %H:%M:%S"
-                                    ).unwrap();
-
-                                    debug!("file datetime: '{}'", file_datetime);
+                                Some(file_datetime) => {
+                                    info!("date created: {}", file_datetime);
 
                                     let result_datetime_format = file_datetime.format("%Y-%m-%d__%H-%M-%S");
 
@@ -195,17 +189,22 @@ pub mod commands {
         Ok(())
     }
 
-    fn get_date_created_from_file_exif(file_path: &str) -> Result<Option<String>, ExifError> {
+    fn get_date_created_from_file_exif(file_path: &str) -> Result<Option<NaiveDateTime>, ExifError> {
         info!("get exif 'date created' property from '{}'", file_path);
 
-        let mut result: Option<String> = None;
+        let mut result: Option<NaiveDateTime> = None;
 
         match rexif::parse_file(&file_path) {
             Ok(exif) => {
                 for entry in &exif.entries {
                     if entry.tag == ExifTag::DateTimeOriginal {
                         debug!("created date: {}", &entry.value_more_readable);
-                        result = Some(String::from(&entry.value_more_readable));
+
+                        let file_datetime = NaiveDateTime::parse_from_str(
+                            &entry.value_more_readable, "%Y:%m:%d %H:%M:%S"
+                        ).unwrap();
+
+                        result = Some(file_datetime.to_owned());
                         break;
                     }
                 }
