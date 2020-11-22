@@ -8,7 +8,8 @@ pub mod commands_tests {
     const SOURCE_DIR_NAME: &str = "img-src";
     const RESULTS_DIR_NAME: &str = "results";
 
-    const FILE_WITHOUT_DATE_IN_EXIF: &str = "/2013/Май/2013-05-17__manga__berserk__forest.jpg";
+    const EXPECTED_FILE_WITH_DATE_IN_EXIF: &str = "/2013/Май/2013-05-17__manga__berserk__forest.jpg";
+    const EXPECTED_FILE_WITHOUT_DATE_IN_EXIF: &str = "/2013/Май/2013-05-17__manga__berserk__forest.jpg";
 
     #[test]
     fn date_should_extracted_from_path_for_files_without_exif() {
@@ -16,7 +17,7 @@ pub mod commands_tests {
 
         reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, true);
 
-        let expected_result_filename = format!("{}/{}", RESULTS_DIR_NAME, FILE_WITHOUT_DATE_IN_EXIF);
+        let expected_result_filename = format!("{}/{}", RESULTS_DIR_NAME, EXPECTED_FILE_WITHOUT_DATE_IN_EXIF);
         let expected_result_file = Path::new(&expected_result_filename);
 
         assert!(expected_result_file.exists());
@@ -43,7 +44,7 @@ pub mod commands_tests {
 
         reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, false);
 
-        let expected_result_filename = format!("{}{}", RESULTS_DIR_NAME, FILE_WITHOUT_DATE_IN_EXIF);
+        let expected_result_filename = format!("{}{}", RESULTS_DIR_NAME, EXPECTED_FILE_WITHOUT_DATE_IN_EXIF);
         let expected_result_file = Path::new(&expected_result_filename);
 
         assert!(!expected_result_file.exists());
