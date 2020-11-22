@@ -9,9 +9,6 @@ pub mod commands_tests {
 
     #[test]
     fn date_should_extracted_from_path_for_files_without_exif() {
-        let logging_config = get_logging_config("debug");
-        log4rs::init_config(logging_config).unwrap();
-
         remove_results_dir();
 
         reorganize_files("img-src", "results", true);
@@ -32,6 +29,21 @@ pub mod commands_tests {
         let expected_result_file = Path::new(&expected_result_filename);
 
         assert!(expected_result_file.exists());
+    }
+
+    #[test]
+    fn do_not_extract_date_from_path_for_files_without_exif_if_option_was_not_activated() {
+        let logging_config = get_logging_config("debug");
+        log4rs::init_config(logging_config).unwrap();
+
+        remove_results_dir();
+
+        reorganize_files("img-src", "results", false);
+
+        let expected_result_filename = format!("{}/2013/Май/2013-05-17__manga__berserk__forest.jpg", RESULTS_DIR_NAME);
+        let expected_result_file = Path::new(&expected_result_filename);
+
+        assert!(!expected_result_file.exists());
     }
 
     fn remove_results_dir() {
