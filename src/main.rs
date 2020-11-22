@@ -7,9 +7,13 @@ use clap::{ArgMatches, Arg, App, SubCommand};
 use std::process::exit;
 use crate::commands::commands::reorganize_files;
 
-mod logging;
 mod commands;
 mod commands_tests;
+
+mod path_parser;
+mod path_parser_tests;
+
+mod logging;
 
 const REORGANIZE_COMMAND: &str = "reorganize";
 const SRC_PATH_ARG: &str = "src-dir";
@@ -22,7 +26,7 @@ const ERROR_EXIT_CODE: i32 = 1;
 
 fn main() {
     let matches = App::new("imgtag")
-        .version("0.1.0 ALPHA")
+        .version("0.1.0 BETA")
         .about("Image tagging tool")
         .arg(
             Arg::with_name(LOG_LEVEL_ARGUMENT)
