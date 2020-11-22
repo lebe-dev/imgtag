@@ -30,11 +30,11 @@ pub mod path_parser {
         for cap in date_pattern.captures_iter(path) {
             let date_str = format!("{}", &cap[1]);
 
-            println!("extracted date: '{}'", date_str);
+            info!("extracted date: '{}'", date_str);
 
             match NaiveDate::parse_from_str(&date_str, date_format) {
                 Ok(datetime) => results.push(datetime.to_owned()),
-                Err(e) => eprintln!("unable to parse string to date: {}", e)
+                Err(e) => error!("unable to parse string to date: {}", e)
             }
         }
 
