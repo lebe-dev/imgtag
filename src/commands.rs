@@ -65,8 +65,9 @@ pub mod commands {
                                     }
                                 }
                                 None => {
+                                    warn!("file '{}' doesn't contain date in EXIF meta-data", file_name);
+
                                     if extract_dates_from_path {
-                                        warn!("file '{}' doesn't contain EXIF meta-data", file_name);
                                         let extracted_dates = get_dates_from_path(&file_path_str);
 
                                         if !extracted_dates.is_empty() {
@@ -106,8 +107,9 @@ pub mod commands {
                             }
                         }
                         Err(_) => {
+                            warn!("file '{}' doesn't contain EXIF meta-data", file_name);
+
                             if extract_dates_from_path {
-                                warn!("file '{}' doesn't contain EXIF meta-data", file_name);
                                 let extracted_dates = get_dates_from_path(&file_path_str);
 
                                 if !extracted_dates.is_empty() {
