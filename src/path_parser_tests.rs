@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod path_parser_tests {
     use crate::path_parser::path_parser::get_dates_from_path;
-    use chrono::Datelike;
+    use chrono::{Datelike, NaiveDate};
 
     #[test]
     fn dates_in_yyyymmdd_should_be_extracted() {
@@ -51,12 +51,7 @@ pub mod path_parser_tests {
 
         assert_eq!(results.len(), 2);
 
-        let first_date = results.iter().find(|date| {
-            date.year() == 2019 && date.month() == 10 && date.day() == 29
-        }
-        );
-
-        assert!(first_date.is_some());
+        assert!(vec_contains_date(&results, 2019, 10, 29));
 
         let second_date = results.iter().find(|date| {
             date.year() == 2017 && date.month() == 2 && date.day() == 11
@@ -64,5 +59,14 @@ pub mod path_parser_tests {
         );
 
         assert!(second_date.is_some());
+    }
+
+    fn vec_contains_date(vec: &Vec<NaiveDate>, year: i32, month: u32, day: u32) -> bool {
+        let date_found = vec.iter().find(|date| {
+                date.year() == year && date.month() == month && date.day() == day
+            }
+        );
+
+        date_found.is_some()
     }
 }
