@@ -31,6 +31,10 @@ imgtag /home/user/camera /data/output
 
 ## Опции
 
+### Извлекать дату из пути к файлу для файлов без EXIF
+
+Опция: `--extract-date-from-path`.
+
 ### Переопределить значение года
 
 ```
