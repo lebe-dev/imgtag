@@ -19,6 +19,8 @@ const REORGANIZE_COMMAND: &str = "reorganize";
 const SRC_PATH_ARG: &str = "src-dir";
 const DEST_PATH_ARG: &str = "dest-dir";
 
+const EXTRACT_DATE_FROM_PATH_OPTION: &str = "extract-date-from-path";
+
 const LOG_LEVEL_ARGUMENT: &str = "log-level";
 const LOG_LEVEL_DEFAULT_VALUE: &str = "off";
 
@@ -28,6 +30,15 @@ fn main() {
     let matches = App::new("imgtag")
         .version("0.1.0 BETA")
         .about("Image tagging tool")
+        .arg(
+            Arg::with_name(EXTRACT_DATE_FROM_PATH_OPTION)
+                .help("try to extract date from file path for files without EXIF. \
+                         Supported date formats: yyyyMMdd, yyyy-MM-dd, yyyy.MM.dd. \
+                         Takes the nearest date to filename.")
+                .long(EXTRACT_DATE_FROM_PATH_OPTION)
+                .takes_value(false)
+                .required(false)
+        )
         .arg(
             Arg::with_name(LOG_LEVEL_ARGUMENT)
                 .help("set logging level. possible values: debug, info, error, warn, trace")
@@ -54,6 +65,8 @@ fn main() {
         )
         .get_matches();
 
+    let extract_dates_from_path = matches.is_present(EXTRACT_DATE_FROM_PATH_OPTION);
+
     let logging_level: &str = get_logging_level(&matches);
     let logging_config = get_logging_config(logging_level);
     log4rs::init_config(logging_config).unwrap();
@@ -70,7 +83,7 @@ fn main() {
             let dest_path: &str = args.value_of(DEST_PATH_ARG)
                                       .expect("invalid value for dest-path argument");
 
-            match reorganize_files(src_path, dest_path) {
+            match reorganize_files(src_path, dest_path, extract_dates_from_path) {
                 Ok(_) => {
                     println!("files have been reorganized :D");
                     exit(0);

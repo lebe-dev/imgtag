@@ -3,10 +3,13 @@ pub mod commands {
     use rexif::{ExifError, ExifTag};
     use std::path::Path;
     use chrono::{NaiveDateTime, Datelike};
+    use crate::path_parser::path_parser::get_dates_from_path;
 
-    pub fn reorganize_files(src_path: &str, dest_path: &str) -> Result<(), io::Error> {
+    pub fn reorganize_files(src_path: &str, dest_path: &str,
+                            extract_dates_from_path: bool) -> Result<(), io::Error> {
         info!("reorganize files for path '{}'", src_path);
         info!("destination path '{}'", dest_path);
+        info!("extract dates from path: {}", extract_dates_from_path);
 
         match get_files(src_path) {
             Ok(files) => {
@@ -47,9 +50,9 @@ pub mod commands {
 
                                             info!("result file path '{}'", result_file_path);
 
-                                            info!("copy '{}' > '{}'", file_path_str, result_file_path);
+                                            info!("copy '{}' > '{}'", &file_path_str, result_file_path);
 
-                                            match fs::copy(file_path_str, &result_file_path) {
+                                            match fs::copy(&file_path_str, &result_file_path) {
                                                 Ok(_) => {
                                                     info!("file has been copied");
                                                 }
@@ -61,11 +64,85 @@ pub mod commands {
                                         Err(e) => error!("unable to create path '{}': {}", result_path, e)
                                     }
                                 }
-                                None => {}
+                                None => {
+                                    if extract_dates_from_path {
+                                        warn!("file '{}' doesn't contain EXIF meta-data", file_name);
+                                        let extracted_dates = get_dates_from_path(&file_path_str);
+
+                                        if !extracted_dates.is_empty() {
+                                            let file_date = extracted_dates.last().unwrap();
+                                            let result_date_format = file_date.format("%Y-%m-%d");
+                                            let result_filename = format!("{}__{}", result_date_format, file_name);
+                                            info!("result filename: '{}'", result_filename);
+                                            create_year_dir_if_not_exists(dest_path, file_date.year())?;
+
+                                            let month_name = get_month_name(file_date.month());
+
+                                            let result_path = format!("{}/{}/{}", dest_path, file_date.year(), month_name);
+                                            info!("result_path: '{}'", result_path);
+
+                                            match fs::create_dir_all(&result_path) {
+                                                Ok(_) => {
+                                                    let result_file_path = format!("{}/{}", &result_path, result_filename);
+
+                                                    info!("result file path '{}'", result_file_path);
+
+                                                    info!("copy '{}' > '{}'", file_path_str, result_file_path);
+
+                                                    match fs::copy(&file_path_str, &result_file_path) {
+                                                        Ok(_) => {
+                                                            info!("file has been copied");
+                                                        }
+                                                        Err(e) => {
+                                                            error!("unable to copy file to destination: {}", e);
+                                                        }
+                                                    }
+                                                }
+                                                Err(e) => error!("unable to create path '{}': {}", result_path, e)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                         Err(_) => {
-                            error!("unable to extract exif data")
+                            if extract_dates_from_path {
+                                warn!("file '{}' doesn't contain EXIF meta-data", file_name);
+                                let extracted_dates = get_dates_from_path(&file_path_str);
+
+                                if !extracted_dates.is_empty() {
+                                    let file_date = extracted_dates.last().unwrap();
+                                    let result_date_format = file_date.format("%Y-%m-%d");
+                                    let result_filename = format!("{}__{}", result_date_format, file_name);
+                                    info!("result filename: '{}'", result_filename);
+                                    create_year_dir_if_not_exists(dest_path, file_date.year())?;
+
+                                    let month_name = get_month_name(file_date.month());
+
+                                    let result_path = format!("{}/{}/{}", dest_path, file_date.year(), month_name);
+                                    info!("result_path: '{}'", result_path);
+
+                                    match fs::create_dir_all(&result_path) {
+                                        Ok(_) => {
+                                            let result_file_path = format!("{}/{}", &result_path, result_filename);
+
+                                            info!("result file path '{}'", result_file_path);
+
+                                            info!("copy '{}' > '{}'", file_path_str, result_file_path);
+
+                                            match fs::copy(&file_path_str, &result_file_path) {
+                                                Ok(_) => {
+                                                    info!("file has been copied");
+                                                }
+                                                Err(e) => {
+                                                    error!("unable to copy file to destination: {}", e);
+                                                }
+                                            }
+                                        }
+                                        Err(e) => error!("unable to create path '{}': {}", result_path, e)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -125,6 +202,7 @@ pub mod commands {
             Ok(exif) => {
                 for entry in &exif.entries {
                     if entry.tag == ExifTag::DateTimeOriginal {
+                        debug!("created date: {}", &entry.value_more_readable);
                         result = Some(String::from(&entry.value_more_readable));
                         break;
                     }
