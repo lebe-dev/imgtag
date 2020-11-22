@@ -2,7 +2,7 @@ pub mod commands {
     use std::{io, fs};
     use rexif::{ExifError, ExifTag};
     use std::path::Path;
-    use chrono::{NaiveDateTime, Datelike, ParseError};
+    use chrono::{NaiveDateTime, Datelike, ParseError, NaiveDate};
     use crate::path_parser::path_parser::get_dates_from_path;
 
     pub fn reorganize_files(src_path: &str, dest_path: &str,
@@ -23,7 +23,7 @@ pub mod commands {
                         Ok(date_created) => {
                             match date_created {
                                 Some(file_datetime) => {
-                                    let (result_path, result_file_path) = get_dest_path_and_filepath(
+                                    let (result_path, result_file_path) = get_dest_path_and_filepath_with_datetime(
                                         dest_path, file_name, file_datetime
                                     );
 
@@ -42,35 +42,11 @@ pub mod commands {
                                         if !extracted_dates.is_empty() {
                                             let file_date = extracted_dates.last().unwrap();
 
-                                            let result_date_format = file_date.format("%Y-%m-%d");
-                                            let result_filename = format!("{}__{}", result_date_format, file_name);
-                                            info!("result filename: '{}'", result_filename);
-                                            create_year_dir_if_not_exists(dest_path, file_date.year())?;
+                                            let (result_path, result_file_path) = get_dest_path_and_filepath_with_date(
+                                                dest_path, file_name, file_date
+                                            );
 
-                                            let month_name = get_month_name(file_date.month());
-
-                                            let result_path = format!("{}/{}/{}", dest_path, file_date.year(), month_name);
-                                            info!("result_path: '{}'", result_path);
-
-                                            match fs::create_dir_all(&result_path) {
-                                                Ok(_) => {
-                                                    let result_file_path = format!("{}/{}", &result_path, result_filename);
-
-                                                    info!("result file path '{}'", result_file_path);
-
-                                                    info!("copy '{}' > '{}'", file_path_str, result_file_path);
-
-                                                    match fs::copy(&file_path_str, &result_file_path) {
-                                                        Ok(_) => {
-                                                            info!("file has been copied");
-                                                        }
-                                                        Err(e) => {
-                                                            error!("unable to copy file to destination: {}", e);
-                                                        }
-                                                    }
-                                                }
-                                                Err(e) => error!("unable to create path '{}': {}", result_path, e)
-                                            }
+                                            reorganize_file(file_date.year(), dest_path, &file_path_str, &result_path, &result_file_path);
                                         }
                                     }
                                 }
@@ -84,35 +60,11 @@ pub mod commands {
 
                                 if !extracted_dates.is_empty() {
                                     let file_date = extracted_dates.last().unwrap();
-                                    let result_date_format = file_date.format("%Y-%m-%d");
-                                    let result_filename = format!("{}__{}", result_date_format, file_name);
-                                    info!("result filename: '{}'", result_filename);
-                                    create_year_dir_if_not_exists(dest_path, file_date.year())?;
+                                    let (result_path, result_file_path) = get_dest_path_and_filepath_with_date(
+                                        dest_path, file_name, file_date
+                                    );
 
-                                    let month_name = get_month_name(file_date.month());
-
-                                    let result_path = format!("{}/{}/{}", dest_path, file_date.year(), month_name);
-                                    info!("result_path: '{}'", result_path);
-
-                                    match fs::create_dir_all(&result_path) {
-                                        Ok(_) => {
-                                            let result_file_path = format!("{}/{}", &result_path, result_filename);
-
-                                            info!("result file path '{}'", result_file_path);
-
-                                            info!("copy '{}' > '{}'", file_path_str, result_file_path);
-
-                                            match fs::copy(&file_path_str, &result_file_path) {
-                                                Ok(_) => {
-                                                    info!("file has been copied");
-                                                }
-                                                Err(e) => {
-                                                    error!("unable to copy file to destination: {}", e);
-                                                }
-                                            }
-                                        }
-                                        Err(e) => error!("unable to create path '{}': {}", result_path, e)
-                                    }
+                                    reorganize_file(file_date.year(), dest_path, &file_path_str, &result_path, &result_file_path);
                                 }
                             }
                         }
@@ -193,8 +145,27 @@ pub mod commands {
         }
     }
 
-    fn get_dest_path_and_filepath(root_dest_path: &str, original_file_name: &str, file_datetime: NaiveDateTime) -> (String, String) {
+    fn get_dest_path_and_filepath_with_datetime(root_dest_path: &str, original_file_name: &str,
+                                                file_datetime: NaiveDateTime) -> (String, String) {
         let result_datetime_format = file_datetime.format("%Y-%m-%d__%H-%M-%S");
+
+        let result_filename = format!("{}__{}", result_datetime_format, original_file_name);
+
+        info!("result filename: '{}'", result_filename);
+
+        let month_name = get_month_name(file_datetime.month());
+
+        let result_path = format!("{}/{}/{}", root_dest_path, file_datetime.year(), month_name);
+        info!("result_path: '{}'", result_path);
+
+        let result_file_path = format!("{}/{}", &result_path, result_filename);
+
+        (result_path, result_file_path)
+    }
+
+    fn get_dest_path_and_filepath_with_date(root_dest_path: &str, original_file_name: &str,
+                                            file_datetime: &NaiveDate) -> (String, String) {
+        let result_datetime_format = file_datetime.format("%Y-%m-%d");
 
         let result_filename = format!("{}__{}", result_datetime_format, original_file_name);
 
