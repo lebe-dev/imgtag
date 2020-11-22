@@ -251,7 +251,7 @@ pub mod commands {
             5 => String::from("Май"),
             6 => String::from("Июнь"),
             7 => String::from("Июль"),
-            8 => String::from("Августа"),
+            8 => String::from("Август"),
             9 => String::from("Сентябрь"),
             10 => String::from("Октябрь"),
             11 => String::from("Ноябрь"),
