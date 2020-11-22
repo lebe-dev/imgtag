@@ -22,7 +22,7 @@ const DEST_PATH_ARG: &str = "dest-dir";
 const EXTRACT_DATE_FROM_PATH_OPTION: &str = "extract-date-from-path";
 
 const LOG_LEVEL_ARGUMENT: &str = "log-level";
-const LOG_LEVEL_DEFAULT_VALUE: &str = "off";
+const LOG_LEVEL_DEFAULT_VALUE: &str = "info";
 
 const ERROR_EXIT_CODE: i32 = 1;
 
