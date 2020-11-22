@@ -33,6 +33,12 @@ pub mod path_parser_tests {
         assert!(vec_contains_date(&results, 2017, 2, 11));
     }
 
+    #[test]
+    fn invalid_dates_should_be_ignored() {
+        let results = get_dates_from_path("/mnt/pics/20196229/2019.62.49/2017-02-99_IMG13.jpg");
+        assert_eq!(results.len(), 0);
+    }
+
     fn vec_contains_date(vec: &Vec<NaiveDate>, year: i32, month: u32, day: u32) -> bool {
         let date_found = vec.iter().find(|date| {
                 date.year() == year && date.month() == month && date.day() == day
