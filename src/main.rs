@@ -84,9 +84,10 @@ fn main() {
             let dest_path: &str = args.value_of(DEST_PATH_ARG)
                                       .expect("invalid value for dest-path argument");
 
-            match reorganize_files(src_path, dest_path, extract_dates_from_path) {
+            match reorganize_files(src_path, dest_path,
+                                   extract_dates_from_path, show_progress) {
                 Ok(_) => {
-                    println!("files have been reorganized");
+                    println!("\nAll files have been reorganized");
                     exit(0);
                 }
                 Err(e) => {
@@ -101,6 +102,11 @@ fn main() {
     if !command_matches {
         println!("{}", matches.usage());
     }
+}
+
+fn show_progress(total_elements: usize, current_element_index: usize) {
+    print!("\r");
+    print!("Progress: {}/{}", current_element_index, total_elements);
 }
 
 fn get_logging_level<'a>(arg_matches: &'a ArgMatches) -> &'a str {

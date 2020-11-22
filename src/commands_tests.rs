@@ -14,7 +14,7 @@ pub mod commands_tests {
     fn date_should_extracted_from_path_for_files_without_exif() {
         remove_results_dir();
 
-        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, true) {
+        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, true, show_progress) {
             Ok(_) => {}
             Err(_) => {}
         }
@@ -29,7 +29,7 @@ pub mod commands_tests {
     fn result_filename_should_be_stored_in_year_directory() {
         remove_results_dir();
 
-        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, false) {
+        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, false, show_progress) {
             Ok(_) => {}
             Err(_) => {}
         }
@@ -47,7 +47,7 @@ pub mod commands_tests {
 
         remove_results_dir();
 
-        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, false) {
+        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, false, show_progress) {
             Ok(_) => {}
             Err(_) => {}
         }
@@ -67,6 +67,11 @@ pub mod commands_tests {
                 Err(_) => {}
             }
         }
+    }
+
+    fn show_progress(total_elements: usize, current_element_index: usize) {
+        print!("\r");
+        print!("progress: {}/{}", current_element_index, total_elements);
     }
 
 }

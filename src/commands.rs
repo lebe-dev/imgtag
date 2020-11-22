@@ -7,7 +7,9 @@ pub mod commands {
     use std::io::{Error, ErrorKind};
 
     pub fn reorganize_files(src_path: &str, dest_path: &str,
-                            extract_dates_from_path: bool) -> Result<(), io::Error> {
+                            extract_dates_from_path: bool,
+                            on_progress: fn(total: usize, current_index: usize))
+                                                                        -> Result<(), io::Error> {
         info!("reorganize files for path '{}'", src_path);
         info!("destination path '{}'", dest_path);
         info!("extract dates from path: {}", extract_dates_from_path);
@@ -16,7 +18,7 @@ pub mod commands {
 
         match get_files(src_path) {
             Ok(files) => {
-                for file_path_str in files {
+                for (index, file_path_str) in files.iter().enumerate() {
                     info!("processing file '{}'", file_path_str);
 
                     let file_path = Path::new(&file_path_str);
@@ -26,8 +28,10 @@ pub mod commands {
                         Ok(date_created) => {
                             match date_created {
                                 Some(file_datetime) => {
-                                    let (result_path, result_file_path) = get_dest_path_and_filepath_with_datetime(
-                                        dest_path, file_name, file_datetime
+                                    let (result_path, result_file_path) =
+                                        get_dest_path_and_filepath_with_datetime(
+                                        dest_path, file_name,
+                                        file_datetime
                                     );
 
                                     match reorganize_file(
@@ -40,7 +44,10 @@ pub mod commands {
                                     }
                                 }
                                 None => {
-                                    warn!("file '{}' doesn't contain date in EXIF meta-data", file_name);
+                                    warn!(
+                                        "file '{}' doesn't contain date in EXIF meta-data",
+                                        file_name
+                                    );
 
                                     if extract_dates_from_path {
                                         match reorganize_file_without_exif(
@@ -57,13 +64,16 @@ pub mod commands {
                             warn!("file '{}' doesn't contain EXIF meta-data", file_name);
 
                             if extract_dates_from_path {
-                                match reorganize_file_without_exif(&file_path_str, dest_path, file_name) {
+                                match reorganize_file_without_exif(&file_path_str, dest_path,
+                                                                   file_name) {
                                     Ok(_) => {}
                                     Err(_) => has_errors = true
                                 }
                             }
                         }
                     }
+
+                    on_progress(files.len(), index)
                 }
 
                 if !has_errors {
@@ -80,7 +90,8 @@ pub mod commands {
         }
     }
 
-    fn reorganize_file_without_exif(file_path_str: &str, dest_path: &str, file_name: &str) -> Result<(), io::Error> {
+    fn reorganize_file_without_exif(file_path_str: &str,
+                                    dest_path: &str, file_name: &str) -> Result<(), io::Error> {
         let extracted_dates = get_dates_from_path(&file_path_str);
 
         if !extracted_dates.is_empty() {
@@ -89,10 +100,13 @@ pub mod commands {
                 dest_path, file_name, file_date
             );
 
-            reorganize_file(file_date.year(), dest_path, &file_path_str, &result_path, &result_file_path)
+            reorganize_file(file_date.year(), dest_path,
+                            &file_path_str, &result_path,
+                            &result_file_path)
 
         } else {
-            info!("unable to reorganize file because file path doesn't contain any information about date");
+            info!("unable to reorganize file because file path doesn't \
+                   contain any information about date");
             Ok(())
         }
     }
@@ -137,7 +151,8 @@ pub mod commands {
         Ok(())
     }
 
-    fn get_date_created_from_file_exif(file_path: &str) -> Result<Option<NaiveDateTime>, ExifError> {
+    fn get_date_created_from_file_exif(file_path: &str) ->
+                                                        Result<Option<NaiveDateTime>, ExifError> {
         info!("get exif 'date created' property from '{}'", file_path);
 
         let mut result: Option<NaiveDateTime> = None;
