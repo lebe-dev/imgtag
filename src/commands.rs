@@ -2,17 +2,18 @@ pub mod commands {
     use std::{io, fs};
     use rexif::{ExifError, ExifTag};
     use std::path::Path;
-    use chrono::{NaiveDateTime, Datelike, NaiveDate};
+    use chrono::{NaiveDateTime, Datelike, NaiveDate, Local, TimeZone};
     use crate::path_parser::path_parser::get_dates_from_path;
     use std::io::{Error, ErrorKind};
+    use crate::domain::domain::NoExifConfig;
 
     pub fn reorganize_files(src_path: &str, dest_path: &str,
-                            extract_dates_from_path: bool,
+                            no_exif_config: &NoExifConfig,
                             on_progress: fn(total: usize, current_index: usize))
                                                                         -> Result<(), io::Error> {
         info!("reorganize files for path '{}'", src_path);
         info!("destination path '{}'", dest_path);
-        info!("extract dates from path: {}", extract_dates_from_path);
+        info!("no exif config: {}", no_exif_config.to_string());
 
         let mut has_errors = false;
 
@@ -49,9 +50,10 @@ pub mod commands {
                                         file_name
                                     );
 
-                                    if extract_dates_from_path {
+                                    if no_exif_config.extract_dates_from_path {
                                         match reorganize_file_without_exif(
-                                            &file_path_str, dest_path, file_name
+                                            &file_path_str, dest_path, file_name,
+                                            no_exif_config
                                         ) {
                                             Ok(_) => {}
                                             Err(_) => has_errors = true
@@ -63,9 +65,11 @@ pub mod commands {
                         Err(_) => {
                             warn!("file '{}' doesn't contain EXIF meta-data", file_name);
 
-                            if extract_dates_from_path {
-                                match reorganize_file_without_exif(&file_path_str, dest_path,
-                                                                   file_name) {
+                            if no_exif_config.extract_dates_from_path {
+                                match reorganize_file_without_exif(
+                                    &file_path_str, dest_path,
+                                    file_name, no_exif_config
+                                ) {
                                     Ok(_) => {}
                                     Err(_) => has_errors = true
                                 }
@@ -91,13 +95,16 @@ pub mod commands {
     }
 
     fn reorganize_file_without_exif(file_path_str: &str,
-                                    dest_path: &str, file_name: &str) -> Result<(), io::Error> {
-        let extracted_dates = get_dates_from_path(&file_path_str);
+                                    dest_path: &str, file_name: &str,
+                                    no_exif_config: &NoExifConfig) -> Result<(), io::Error> {
 
-        if !extracted_dates.is_empty() {
-            let file_date = extracted_dates.last().unwrap();
+        if no_exif_config.force_year {
+            let local_dt = Local.ymd(no_exif_config.year, 1, 1)
+                .and_hms_milli(9, 10, 11, 12);
+            let file_date = local_dt.naive_local().date();
+
             let (result_path, result_file_path) = get_dest_path_and_filepath_with_date(
-                dest_path, file_name, file_date
+                dest_path, file_name, &file_date
             );
 
             reorganize_file(file_date.year(), dest_path,
@@ -105,9 +112,24 @@ pub mod commands {
                             &result_file_path)
 
         } else {
-            info!("unable to reorganize file because file path doesn't \
+            let extracted_dates = get_dates_from_path(&file_path_str);
+
+            if !extracted_dates.is_empty() {
+                let file_date = extracted_dates.last().unwrap();
+                let (result_path, result_file_path) = get_dest_path_and_filepath_with_date(
+                    dest_path, file_name, file_date
+                );
+
+                reorganize_file(file_date.year(), dest_path,
+                                &file_path_str, &result_path,
+                                &result_file_path)
+
+            } else {
+                info!("unable to reorganize file because file path doesn't \
                    contain any information about date");
-            Ok(())
+
+                Ok(())
+            }
         }
     }
 
