@@ -35,8 +35,8 @@ const ERROR_EXIT_CODE: i32 = 1;
 
 fn main() {
     let matches = App::new("imgtag")
-        .version("0.1.0 BETA")
-        .about("Image hierarchy tool")
+        .version("0.1.0")
+        .about("Image files hierarchy tool")
         .arg(
             Arg::with_name(LOG_LEVEL_ARGUMENT)
                 .help("set logging level. possible values: debug, info, error, warn, trace")
@@ -65,7 +65,7 @@ fn main() {
                 Arg::with_name(EXTRACT_DATE_FROM_PATH_FLAG)
                     .help("try to extract date from file path for files without EXIF. \
                          Supported date formats: yyyyMMdd, yyyy-MM-dd, yyyy.MM.dd. \
-                         Takes the nearest date to filename. Has lower priority than 'year' option.")
+                         Takes the nearest date from filename. Has lower priority than 'year' option.")
                     .long(EXTRACT_DATE_FROM_PATH_FLAG)
                     .takes_value(false)
                     .required(false)
