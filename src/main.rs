@@ -36,7 +36,7 @@ const ERROR_EXIT_CODE: i32 = 1;
 fn main() {
     let matches = App::new("imgtag")
         .version("0.1.0 BETA")
-        .about("Image tagging tool")
+        .about("Image hierarchy tool")
         .arg(
             Arg::with_name(LOG_LEVEL_ARGUMENT)
                 .help("set logging level. possible values: debug, info, error, warn, trace")
