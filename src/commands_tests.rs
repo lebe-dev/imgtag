@@ -4,6 +4,7 @@ pub mod commands_tests {
     use std::fs;
     use std::path::Path;
     use crate::logging::logging::get_logging_config;
+    use crate::domain::domain::NoExifConfig;
 
     const SOURCE_DIR_NAME: &str = "img-src";
     const RESULTS_DIR_NAME: &str = "results";
@@ -14,7 +15,13 @@ pub mod commands_tests {
     fn date_should_extracted_from_path_for_files_without_exif() {
         remove_results_dir();
 
-        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, true, show_progress) {
+        let no_exif_config = NoExifConfig {
+            extract_dates_from_path: true,
+            force_year: false,
+            year: 0
+        };
+
+        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, &no_exif_config, show_progress) {
             Ok(_) => {}
             Err(_) => {}
         }
@@ -29,7 +36,13 @@ pub mod commands_tests {
     fn result_filename_should_be_stored_in_year_directory() {
         remove_results_dir();
 
-        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, false, show_progress) {
+        let no_exif_config = NoExifConfig {
+            extract_dates_from_path: false,
+            force_year: false,
+            year: 0
+        };
+
+        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, &no_exif_config, show_progress) {
             Ok(_) => {}
             Err(_) => {}
         }
@@ -47,7 +60,13 @@ pub mod commands_tests {
 
         remove_results_dir();
 
-        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, false, show_progress) {
+        let no_exif_config = NoExifConfig {
+            extract_dates_from_path: false,
+            force_year: false,
+            year: 0
+        };
+
+        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, &no_exif_config, show_progress) {
             Ok(_) => {}
             Err(_) => {}
         }
