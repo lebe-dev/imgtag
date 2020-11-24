@@ -22,7 +22,7 @@ const REORGANIZE_COMMAND: &str = "reorganize";
 const SRC_PATH_ARG: &str = "src-dir";
 const DEST_PATH_ARG: &str = "dest-dir";
 
-const EXTRACT_DATE_FROM_PATH_OPTION: &str = "extract-date-from-path";
+const EXTRACT_DATE_FROM_PATH_FLAG: &str = "extract-date-from-path";
 
 /// Force year for files without EXIF or without 'Date created' exif-property
 const FORCE_YEAR_OPTION: &str = "force-year";
@@ -62,11 +62,11 @@ fn main() {
                     .takes_value(true).required(true)
             )
             .arg(
-                Arg::with_name(EXTRACT_DATE_FROM_PATH_OPTION)
+                Arg::with_name(EXTRACT_DATE_FROM_PATH_FLAG)
                     .help("try to extract date from file path for files without EXIF. \
                          Supported date formats: yyyyMMdd, yyyy-MM-dd, yyyy.MM.dd. \
                          Takes the nearest date to filename. Has lower priority than 'year' option.")
-                    .long(EXTRACT_DATE_FROM_PATH_OPTION)
+                    .long(EXTRACT_DATE_FROM_PATH_FLAG)
                     .takes_value(false)
                     .required(false)
             )
@@ -80,7 +80,7 @@ fn main() {
         )
         .get_matches();
 
-    let extract_dates_from_path = matches.is_present(EXTRACT_DATE_FROM_PATH_OPTION);
+    let extract_dates_from_path = matches.is_present(EXTRACT_DATE_FROM_PATH_FLAG);
 
     let logging_level: &str = get_logging_level(&matches);
     let logging_config = get_logging_config(logging_level);
