@@ -7,6 +7,7 @@ use clap::{ArgMatches, Arg, App, SubCommand};
 use std::process::exit;
 use crate::commands::commands::reorganize_files;
 use crate::domain::domain::NoExifConfig;
+use chrono::Local;
 
 mod commands;
 mod commands_tests;
@@ -111,10 +112,15 @@ fn main() {
                 year
             };
 
+            let started_datetime = Local::now();
+            println!("started: {}", started_datetime.to_rfc2822());
+
             match reorganize_files(src_path, dest_path,
                                    &no_exif_config, show_progress) {
                 Ok(_) => {
                     println!("\nAll files have been reorganized");
+                    let finished_datetime = Local::now();
+                    println!("finished: {}", finished_datetime.to_rfc2822());
                     exit(0);
                 }
                 Err(e) => {
