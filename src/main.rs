@@ -73,6 +73,7 @@ fn main() {
             .arg(
                 Arg::with_name(FORCE_YEAR_OPTION)
                     .help("force year for files without EXIF or without 'Date created' exif-property")
+                    .long(FORCE_YEAR_OPTION)
                     .value_name(YEAR_VALUE)
                     .takes_value(true).required(false)
             )
