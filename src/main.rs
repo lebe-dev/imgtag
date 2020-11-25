@@ -95,8 +95,6 @@ fn main() {
         )
         .get_matches();
 
-    let extract_dates_from_path = !matches.is_present(DONT_EXTRACT_DATE_FROM_PATH_FLAG);
-
     let logging_level: &str = get_logging_level(&matches);
     let logging_config = get_logging_config(logging_level);
     log4rs::init_config(logging_config).unwrap();
@@ -106,6 +104,10 @@ fn main() {
     match matches.subcommand_matches(REORGANIZE_COMMAND) {
         Some(args) => {
             command_matches = true;
+
+            let extract_dates_from_path = !args.is_present(DONT_EXTRACT_DATE_FROM_PATH_FLAG);
+            info!("extract dates from path: {}", extract_dates_from_path);
+            println!("extract dates from path: {}", extract_dates_from_path);
 
             let src_path: &str = args.value_of(SRC_PATH_ARG)
                                      .expect("invalid value for src-path argument");
@@ -151,6 +153,10 @@ fn main() {
     match matches.subcommand_matches(DIAG_COMMAND) {
         Some(args) => {
             command_matches = true;
+
+            let extract_dates_from_path = !args.is_present(DONT_EXTRACT_DATE_FROM_PATH_FLAG);
+            info!("extract dates from path: {}", extract_dates_from_path);
+            println!("extract dates from path: {}", extract_dates_from_path);
 
             let src_path: &str = args.value_of(SRC_PATH_ARG)
                                      .expect("invalid value for src-path argument");
