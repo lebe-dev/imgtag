@@ -3,7 +3,7 @@ pub mod exif {
     use rexif::{ExifError, ExifTag};
 
     pub fn get_date_created_from_file_exif(file_path: &str) ->
-    Result<Option<NaiveDateTime>, ExifError> {
+                                                        Result<Option<NaiveDateTime>, ExifError> {
         info!("get exif 'date created' property from '{}'", file_path);
 
         let mut result: Option<NaiveDateTime> = None;
@@ -14,11 +14,15 @@ pub mod exif {
                     if entry.tag == ExifTag::DateTimeOriginal {
                         debug!("created date: {}", &entry.value_more_readable);
 
-                        let file_datetime = NaiveDateTime::parse_from_str(
+                        match NaiveDateTime::parse_from_str(
                             &entry.value_more_readable, "%Y:%m:%d %H:%M:%S"
-                        ).unwrap();
+                        ) {
+                            Ok(file_datetime) => {
+                                result = Some(file_datetime.to_owned());
+                            }
+                            Err(e) => error!("unsupported date format: '{}'", e)
+                        }
 
-                        result = Some(file_datetime.to_owned());
                         break;
                     }
                 }
