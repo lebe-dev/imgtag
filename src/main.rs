@@ -35,7 +35,7 @@ const ERROR_EXIT_CODE: i32 = 1;
 
 fn main() {
     let matches = App::new("imgtag")
-        .version("0.1.0")
+        .version("0.2.0")
         .about("Image files hierarchy tool")
         .arg(
             Arg::with_name(LOG_LEVEL_ARGUMENT)
