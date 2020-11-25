@@ -8,6 +8,22 @@ pub mod commands {
     use crate::files::files::get_files_from_path;
     use crate::exif::exif::get_date_created_from_file_exif;
 
+    const DEST_DATETIME_FORMAT: &str = "%Y-%m-%d__%H-%M-%S";
+
+    const JANUARY: &str = "Январь";
+    const FEBRUARY: &str = "Февраль";
+    const MARCH: &str = "Март";
+    const APRIL: &str = "Апрель";
+    const MAY: &str = "Май";
+    const JUNE: &str = "Июнь";
+    const JULY: &str = "Июль";
+    const AUGUST: &str = "Август";
+    const SEPTEMBER: &str = "Сентябрь";
+    const OCTOBER: &str = "Октябрь";
+    const NOVEMBER: &str = "Ноябрь";
+    const DECEMBER: &str = "Декабрь";
+    const UNKNOWN_MONTH_NAME: &str = "Неизвестный";
+
     pub fn reorganize_files(src_path: &str, dest_path: &str,
                             file_ext_filter: &Vec<String>,
                             no_exif_config: &NoExifConfig,
@@ -148,7 +164,7 @@ pub mod commands {
 
     fn get_dest_path_and_filepath_with_datetime(root_dest_path: &str, original_file_name: &str,
                                                 file_datetime: NaiveDateTime) -> (String, String) {
-        let result_datetime_format = file_datetime.format("%Y-%m-%d__%H-%M-%S");
+        let result_datetime_format = file_datetime.format(DEST_DATETIME_FORMAT);
 
         let result_filename = format!("{}__{}", result_datetime_format, original_file_name);
 
@@ -210,19 +226,19 @@ pub mod commands {
 
     fn get_month_name(month_index: u32) -> String {
         match month_index {
-            1 => String::from("Январь"),
-            2 => String::from("Февраль"),
-            3 => String::from("Март"),
-            4 => String::from("Апрель"),
-            5 => String::from("Май"),
-            6 => String::from("Июнь"),
-            7 => String::from("Июль"),
-            8 => String::from("Август"),
-            9 => String::from("Сентябрь"),
-            10 => String::from("Октябрь"),
-            11 => String::from("Ноябрь"),
-            12 => String::from("Декабрь"),
-            _ => String::from("Неизвестный")
+            1 => String::from(JANUARY),
+            2 => String::from(FEBRUARY),
+            3 => String::from(MARCH),
+            4 => String::from(APRIL),
+            5 => String::from(MAY),
+            6 => String::from(JUNE),
+            7 => String::from(JULY),
+            8 => String::from(AUGUST),
+            9 => String::from(SEPTEMBER),
+            10 => String::from(OCTOBER),
+            11 => String::from(NOVEMBER),
+            12 => String::from(DECEMBER),
+            _ => String::from(UNKNOWN_MONTH_NAME)
         }
     }
 }
