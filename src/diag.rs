@@ -1,7 +1,6 @@
 pub mod diag {
     use std::io;
     use crate::files::files::get_files_from_path;
-    use std::path::Path;
     use crate::path_parser::path_parser::get_dates_from_path;
     use crate::exif::exif::get_date_created_from_file_exif;
 
