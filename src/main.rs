@@ -133,7 +133,7 @@ fn main() {
             let ext_filters: Vec<String> = get_extension_filters();
 
             match reorganize_files(src_path, dest_path, &ext_filters,
-                                   &no_exif_config, show_progress) {
+                                   &no_exif_config, show_reorganize_progress) {
                 Ok(_) => {
                     print_operation_finish();
                     println!("\n---\nAll files have been reorganized");
@@ -159,9 +159,13 @@ fn main() {
 
             let ext_filters: Vec<String> = get_extension_filters();
 
-            match diag_path(src_path, &ext_filters, extract_dates_from_path) {
+            println!("Getting files list..");
+
+            match diag_path(src_path, &ext_filters,
+                            extract_dates_from_path, show_diag_progress) {
                 Ok(diag_report) => {
-                    println!("Files total: {}", diag_report.files_total);
+                    println!("\rFiles total: {}", diag_report.files_total);
+
                     if diag_report.files_with_issues.is_empty() {
                         println!("---\nAll files are fine. Nothing to do.");
 
@@ -192,9 +196,14 @@ fn get_extension_filters() -> Vec<String> {
     vec![String::from("jpg"), String::from("jpeg"), String::from("tiff")]
 }
 
-fn show_progress(total_elements: usize, current_element_index: usize) {
+fn show_reorganize_progress(total_elements: usize, current_element_index: usize) {
     print!("\r");
     print!("Progress: {}/{}", current_element_index, total_elements);
+}
+
+fn show_diag_progress(total_elements: usize, current_element_index: usize, with_issues: usize) {
+    print!("\r");
+    print!("Progress: {}/{} (with issues: {})", current_element_index, total_elements, with_issues);
 }
 
 fn print_operation_start() {
