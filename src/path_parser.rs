@@ -2,15 +2,24 @@ pub mod path_parser {
     use chrono::{NaiveDate};
     use regex::Regex;
 
+    const SOLID_DATE_FORMAT: &str = "%Y%m%d";
+    const SOLID_REGEX_PATTERN: &str = "(\\d{4}\\d{2}\\d{2})";
+
+    const DATE_FORMAT_WITH_HYPHENS: &str = "%Y-%m-%d";
+    const DATE_PATTERN_WITH_HYPHENS: &str = "(\\d{4}-\\d{2}-\\d{2})";
+
+    const DATE_FORMAT_WITH_DOTS: &str = "%Y.%m.%d";
+    const DATE_PATTERN_WITH_DOTS: &str = "(\\d{4}.\\d{2}.\\d{2})";
+
     pub fn get_dates_from_path(path: &str) -> Vec<NaiveDate> {
         let mut results: Vec<NaiveDate> = Vec::new();
 
         info!("extract date form path '{}'", path);
 
         let date_formats: Vec<(&str, &str)> = vec![
-            ("(\\d{4}\\d{2}\\d{2})", "%Y%m%d"),
-            ("(\\d{4}-\\d{2}-\\d{2})", "%Y-%m-%d"),
-            ("(\\d{4}.\\d{2}.\\d{2})", "%Y.%m.%d")
+            (SOLID_REGEX_PATTERN, SOLID_DATE_FORMAT),
+            (DATE_PATTERN_WITH_HYPHENS, DATE_FORMAT_WITH_HYPHENS),
+            (DATE_PATTERN_WITH_DOTS, DATE_FORMAT_WITH_DOTS)
         ];
 
         for date_format in date_formats.iter() {
