@@ -114,14 +114,14 @@ fn main() {
             };
 
             let started_datetime = Local::now();
-            println!("started: {}", started_datetime.to_rfc2822());
+            println!("Started: {}", started_datetime.to_rfc2822());
 
             match reorganize_files(src_path, dest_path,
                                    &no_exif_config, show_progress) {
                 Ok(_) => {
                     println!("\nAll files have been reorganized");
                     let finished_datetime = Local::now();
-                    println!("finished: {}", finished_datetime.to_rfc2822());
+                    println!("Finished: {}", finished_datetime.to_rfc2822());
                     exit(0);
                 }
                 Err(e) => {
