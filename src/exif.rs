@@ -2,6 +2,8 @@ pub mod exif {
     use chrono::NaiveDateTime;
     use rexif::{ExifError, ExifTag};
 
+    const DATETIME_FORMAT: &str = "%Y:%m:%d %H:%M:%S";
+
     pub fn get_date_created_from_file_exif(file_path: &str) ->
                                                         Result<Option<NaiveDateTime>, ExifError> {
         info!("get exif 'date created' property from '{}'", file_path);
@@ -15,11 +17,10 @@ pub mod exif {
                         debug!("created date: {}", &entry.value_more_readable);
 
                         match NaiveDateTime::parse_from_str(
-                            &entry.value_more_readable, "%Y:%m:%d %H:%M:%S"
+                            &entry.value_more_readable, DATETIME_FORMAT
                         ) {
-                            Ok(file_datetime) => {
-                                result = Some(file_datetime.to_owned());
-                            }
+                            Ok(file_datetime) =>
+                                result = Some(file_datetime.to_owned()),
                             Err(e) => error!("unsupported date format: '{}'", e)
                         }
 
