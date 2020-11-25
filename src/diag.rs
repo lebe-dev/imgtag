@@ -10,10 +10,11 @@ pub mod diag {
         pub files_with_issues: Vec<String>
     }
 
-    pub fn diag_path(src_path: &str) -> Result<DiagReport, io::Error> {
+    pub fn diag_path(src_path: &str, file_ext_filter: &Vec<String>,
+                     extract_dates_from_path: bool) -> Result<DiagReport, io::Error> {
         info!("path '{}' diagnostics", src_path);
 
-        match get_files_from_path(src_path) {
+        match get_files_from_path(src_path, file_ext_filter) {
             Ok(files) => {
                 let mut results: Vec<String> = Vec::new();
 
@@ -25,11 +26,14 @@ pub mod diag {
                             match date_created {
                                 Some(_) => {}
                                 None => {
-                                    let extracted_dates = get_dates_from_path(&file_path_str);
 
-                                    if extracted_dates.is_empty() {
-                                        info!("added '{}'", file_path_str);
-                                        results.push(String::from(file_path_str))
+                                    if extract_dates_from_path {
+                                        let extracted_dates = get_dates_from_path(&file_path_str);
+
+                                        if extracted_dates.is_empty() {
+                                            info!("added '{}'", file_path_str);
+                                            results.push(String::from(file_path_str))
+                                        }
                                     }
                                 }
                             }

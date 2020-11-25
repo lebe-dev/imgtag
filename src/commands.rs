@@ -10,6 +10,7 @@ pub mod commands {
     use crate::exif::exif::get_date_created_from_file_exif;
 
     pub fn reorganize_files(src_path: &str, dest_path: &str,
+                            file_ext_filter: &Vec<String>,
                             no_exif_config: &NoExifConfig,
                             on_progress: fn(total: usize, current_index: usize))
                                                                         -> Result<(), io::Error> {
@@ -19,7 +20,7 @@ pub mod commands {
 
         let mut has_errors = false;
 
-        match get_files_from_path(src_path) {
+        match get_files_from_path(src_path, file_ext_filter) {
             Ok(files) => {
                 for (index, file_path_str) in files.iter().enumerate() {
                     info!("processing file '{}'", file_path_str);

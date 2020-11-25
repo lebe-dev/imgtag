@@ -40,6 +40,12 @@ const LOG_LEVEL_DEFAULT_VALUE: &str = "info";
 const ERROR_EXIT_CODE: i32 = 1;
 
 fn main() {
+    let dont_extract_date_from_path_arg = Arg::with_name(DONT_EXTRACT_DATE_FROM_PATH_FLAG)
+        .help("don't extract date from file path for files without EXIF.")
+        .long(DONT_EXTRACT_DATE_FROM_PATH_FLAG)
+        .takes_value(false)
+        .required(false);
+
     let matches = App::new("imgtag")
         .version("0.2.0")
         .about("Image files hierarchy tool")
@@ -67,15 +73,7 @@ fn main() {
                     .value_name(DEST_PATH_ARG)
                     .takes_value(true).required(true)
             )
-            .arg(
-                Arg::with_name(DONT_EXTRACT_DATE_FROM_PATH_FLAG)
-                    .help("try to extract date from file path for files without EXIF. \
-                         Supported date formats: yyyyMMdd, yyyy-MM-dd, yyyy.MM.dd. \
-                         Takes the nearest date from filename. Has lower priority than 'year' option.")
-                    .long(DONT_EXTRACT_DATE_FROM_PATH_FLAG)
-                    .takes_value(false)
-                    .required(false)
-            )
+            .arg(&dont_extract_date_from_path_arg)
             .arg(
                 Arg::with_name(FORCE_YEAR_OPTION)
                     .help("force year for files without EXIF or without 'Date created' exif-property")
@@ -92,6 +90,7 @@ fn main() {
                     .value_name(SRC_PATH_ARG)
                     .takes_value(true).required(true)
             )
+            .arg(dont_extract_date_from_path_arg)
         )
         .get_matches();
 
@@ -130,7 +129,9 @@ fn main() {
 
             print_operation_start();
 
-            match reorganize_files(src_path, dest_path,
+            let ext_filters: Vec<String> = get_extension_filters();
+
+            match reorganize_files(src_path, dest_path, &ext_filters,
                                    &no_exif_config, show_progress) {
                 Ok(_) => {
                     print_operation_finish();
@@ -155,7 +156,9 @@ fn main() {
 
             print_operation_start();
 
-            match diag_path(src_path) {
+            let ext_filters: Vec<String> = get_extension_filters();
+
+            match diag_path(src_path, &ext_filters, extract_dates_from_path) {
                 Ok(diag_report) => {
                     println!("Files total: {}", diag_report.files_total);
                     if diag_report.files_with_issues.is_empty() {
@@ -182,6 +185,10 @@ fn main() {
     if !command_matches {
         println!("{}", matches.usage());
     }
+}
+
+fn get_extension_filters() -> Vec<String> {
+    vec![String::from("jpg"), String::from("jpeg"), String::from("tiff")]
 }
 
 fn show_progress(total_elements: usize, current_element_index: usize) {
