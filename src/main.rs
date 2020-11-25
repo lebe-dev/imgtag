@@ -21,6 +21,7 @@ mod domain;
 mod diag;
 mod files;
 mod exif;
+mod exif_tests;
 
 const REORGANIZE_COMMAND: &str = "reorganize";
 const SRC_PATH_ARG: &str = "src-dir";
