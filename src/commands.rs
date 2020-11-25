@@ -1,6 +1,5 @@
 pub mod commands {
     use std::{io, fs};
-    use rexif::{ExifError, ExifTag};
     use std::path::Path;
     use chrono::{NaiveDateTime, Datelike, NaiveDate, Local, TimeZone};
     use crate::path_parser::path_parser::get_dates_from_path;
