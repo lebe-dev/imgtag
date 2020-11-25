@@ -6,6 +6,8 @@ pub mod commands {
     use crate::path_parser::path_parser::get_dates_from_path;
     use std::io::{Error, ErrorKind};
     use crate::domain::domain::NoExifConfig;
+    use crate::files::files::get_files_from_path;
+    use crate::exif::exif::get_date_created_from_file_exif;
 
     pub fn reorganize_files(src_path: &str, dest_path: &str,
                             no_exif_config: &NoExifConfig,
@@ -17,7 +19,7 @@ pub mod commands {
 
         let mut has_errors = false;
 
-        match get_files(src_path) {
+        match get_files_from_path(src_path) {
             Ok(files) => {
                 for (index, file_path_str) in files.iter().enumerate() {
                     info!("processing file '{}'", file_path_str);
@@ -133,35 +135,6 @@ pub mod commands {
         }
     }
 
-    fn get_files(path: &str) -> Result<Vec<String>, io::Error> {
-        let mut results: Vec<String> = Vec::new();
-
-        let dir_path = Path::new(path);
-
-        for entry in fs::read_dir(dir_path)? {
-            let entry = entry?;
-            debug!("file: {:?}", entry.path().file_name());
-
-            let file_type = entry.file_type()?;
-
-            if file_type.is_file() || file_type.is_symlink() {
-                let file_name = entry.file_name().into_string().unwrap();
-
-                debug!("filename: {}", file_name);
-
-                results.push(String::from(entry.path().to_str().unwrap()));
-            }
-
-            if file_type.is_dir() {
-                if let Ok(files) = get_files(entry.path().to_str().unwrap()) {
-                    files.iter().for_each(|file_path| results.push(String::from(file_path)));
-                }
-            }
-        }
-
-        Ok(results)
-    }
-
     fn create_year_dir_if_not_exists(output_path: &str, year: i32) -> Result<(), io::Error> {
         let dir_name = format!("{}/{}", output_path, year);
         let target_path = Path::new(&dir_name);
@@ -171,35 +144,6 @@ pub mod commands {
         }
 
         Ok(())
-    }
-
-    fn get_date_created_from_file_exif(file_path: &str) ->
-                                                        Result<Option<NaiveDateTime>, ExifError> {
-        info!("get exif 'date created' property from '{}'", file_path);
-
-        let mut result: Option<NaiveDateTime> = None;
-
-        match rexif::parse_file(&file_path) {
-            Ok(exif) => {
-                for entry in &exif.entries {
-                    if entry.tag == ExifTag::DateTimeOriginal {
-                        debug!("created date: {}", &entry.value_more_readable);
-
-                        let file_datetime = NaiveDateTime::parse_from_str(
-                            &entry.value_more_readable, "%Y:%m:%d %H:%M:%S"
-                        ).unwrap();
-
-                        result = Some(file_datetime.to_owned());
-                        break;
-                    }
-                }
-                Ok(result)
-            },
-            Err(e) => {
-                error!("unable to extract exif properties from '{}': {}", file_path, e);
-                Err(e)
-            }
-        }
     }
 
     fn get_dest_path_and_filepath_with_datetime(root_dest_path: &str, original_file_name: &str,

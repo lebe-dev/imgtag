@@ -8,6 +8,7 @@ use std::process::exit;
 use crate::commands::commands::reorganize_files;
 use crate::domain::domain::NoExifConfig;
 use chrono::Local;
+use crate::diag::diag::diag_path;
 
 mod commands;
 mod commands_tests;
@@ -17,10 +18,15 @@ mod path_parser_tests;
 
 mod logging;
 mod domain;
+mod diag;
+mod files;
+mod exif;
 
 const REORGANIZE_COMMAND: &str = "reorganize";
 const SRC_PATH_ARG: &str = "src-dir";
 const DEST_PATH_ARG: &str = "dest-dir";
+
+const DIAG_COMMAND: &str = "diag";
 
 const DONT_EXTRACT_DATE_FROM_PATH_FLAG: &str = "dont-extract-date-from-path";
 
@@ -78,6 +84,15 @@ fn main() {
                     .takes_value(true).required(false)
             )
         )
+        .subcommand(SubCommand::with_name(DIAG_COMMAND)
+                        .about("do diagnostics without modifications in filesystem.")
+            .arg(
+                Arg::with_name(SRC_PATH_ARG)
+                    .help("source path")
+                    .value_name(SRC_PATH_ARG)
+                    .takes_value(true).required(true)
+            )
+        )
         .get_matches();
 
     let extract_dates_from_path = !matches.is_present(DONT_EXTRACT_DATE_FROM_PATH_FLAG);
@@ -113,19 +128,49 @@ fn main() {
                 year
             };
 
-            let started_datetime = Local::now();
-            println!("Started: {}", started_datetime.to_rfc2822());
+            print_operation_start();
 
             match reorganize_files(src_path, dest_path,
                                    &no_exif_config, show_progress) {
                 Ok(_) => {
-                    println!("\nAll files have been reorganized");
-                    let finished_datetime = Local::now();
-                    println!("Finished: {}", finished_datetime.to_rfc2822());
+                    print_operation_finish();
+                    println!("\n---\nAll files have been reorganized");
                     exit(0);
                 }
                 Err(e) => {
                     eprintln!("unable to reorganize image files: {}", e);
+                    exit(ERROR_EXIT_CODE)
+                }
+            }
+        }
+        None => {}
+    }
+
+    match matches.subcommand_matches(DIAG_COMMAND) {
+        Some(args) => {
+            command_matches = true;
+
+            let src_path: &str = args.value_of(SRC_PATH_ARG)
+                                     .expect("invalid value for src-path argument");
+
+            print_operation_start();
+
+            match diag_path(src_path) {
+                Ok(file_paths) => {
+                    if file_paths.is_empty() {
+                        println!("---\nAll files are fine. Nothing to do.");
+
+                    } else {
+                        println!("---\nUnable to determine date for file(s):");
+                        file_paths.iter().for_each(|file_path| println!("{}", file_path));
+                    }
+
+                    print_operation_finish();
+
+                    exit(0);
+                }
+                Err(e) => {
+                    println!("unable to diagnostic path '{}': {}", src_path, e);
                     exit(ERROR_EXIT_CODE)
                 }
             }
@@ -141,6 +186,19 @@ fn main() {
 fn show_progress(total_elements: usize, current_element_index: usize) {
     print!("\r");
     print!("Progress: {}/{}", current_element_index, total_elements);
+}
+
+fn print_operation_start() {
+    print_operation_datetime("Started")
+}
+
+fn print_operation_finish() {
+    print_operation_datetime("Finished")
+}
+
+fn print_operation_datetime(operation_name: &str) {
+    let now = Local::now();
+    println!("{}: {}", operation_name, now.to_rfc2822());
 }
 
 fn get_logging_level<'a>(arg_matches: &'a ArgMatches) -> &'a str {
