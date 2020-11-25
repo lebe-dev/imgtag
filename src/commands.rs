@@ -9,6 +9,7 @@ pub mod commands {
     use crate::exif::exif::get_date_created_from_file_exif;
 
     const DEST_DATETIME_FORMAT: &str = "%Y-%m-%d__%H-%M-%S";
+    const DEST_DATE_FORMAT: &str = "%Y-%m-%d";
 
     const JANUARY: &str = "Январь";
     const FEBRUARY: &str = "Февраль";
@@ -182,7 +183,7 @@ pub mod commands {
 
     fn get_dest_path_and_filepath_with_date(root_dest_path: &str, original_file_name: &str,
                                             file_datetime: &NaiveDate) -> (String, String) {
-        let result_datetime_format = file_datetime.format("%Y-%m-%d");
+        let result_datetime_format = file_datetime.format(DEST_DATE_FORMAT);
 
         let result_filename = format!("{}__{}", result_datetime_format, original_file_name);
 
