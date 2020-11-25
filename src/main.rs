@@ -156,13 +156,14 @@ fn main() {
             print_operation_start();
 
             match diag_path(src_path) {
-                Ok(file_paths) => {
-                    if file_paths.is_empty() {
+                Ok(diag_report) => {
+                    println!("Files total: {}", diag_report.files_total);
+                    if diag_report.files_with_issues.is_empty() {
                         println!("---\nAll files are fine. Nothing to do.");
 
                     } else {
                         println!("---\nUnable to determine date for file(s):");
-                        file_paths.iter().for_each(|file_path| println!("{}", file_path));
+                        diag_report.files_with_issues.iter().for_each(|file_path| println!("{}", file_path));
                     }
 
                     print_operation_finish();

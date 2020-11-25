@@ -5,7 +5,12 @@ pub mod diag {
     use crate::path_parser::path_parser::get_dates_from_path;
     use crate::exif::exif::get_date_created_from_file_exif;
 
-    pub fn diag_path(src_path: &str) -> Result<Vec<String>, io::Error> {
+    pub struct DiagReport {
+        pub files_total: usize,
+        pub files_with_issues: Vec<String>
+    }
+
+    pub fn diag_path(src_path: &str) -> Result<DiagReport, io::Error> {
         info!("path '{}' diagnostics", src_path);
 
         match get_files_from_path(src_path) {
@@ -33,7 +38,9 @@ pub mod diag {
                     }
                 }
 
-                Ok(results)
+                Ok(
+                    DiagReport { files_total: files.len(), files_with_issues: results }
+                )
             }
             Err(e) => {
                 error!("unable to get files from path '{}': {}", src_path, e);
