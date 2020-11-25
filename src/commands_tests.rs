@@ -5,6 +5,7 @@ pub mod commands_tests {
     use std::path::Path;
     use crate::logging::logging::get_logging_config;
     use crate::domain::domain::NoExifConfig;
+    use crate::get_extension_filters;
 
     const SOURCE_DIR_NAME: &str = "img-src";
     const RESULTS_DIR_NAME: &str = "results";
@@ -21,7 +22,10 @@ pub mod commands_tests {
             year: 0
         };
 
-        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, &no_exif_config, show_progress) {
+        let ext_filters = get_extension_filters();
+
+        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME,
+                               &ext_filters, &no_exif_config, show_progress) {
             Ok(_) => {}
             Err(_) => {}
         }
@@ -42,7 +46,10 @@ pub mod commands_tests {
             year: 0
         };
 
-        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, &no_exif_config, show_progress) {
+        let ext_filters = get_extension_filters();
+
+        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME,
+                               &ext_filters, &no_exif_config, show_progress) {
             Ok(_) => {}
             Err(_) => {}
         }
@@ -66,7 +73,10 @@ pub mod commands_tests {
             year: 0
         };
 
-        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME, &no_exif_config, show_progress) {
+        let ext_filters = get_extension_filters();
+
+        match reorganize_files(SOURCE_DIR_NAME, RESULTS_DIR_NAME,
+                               &ext_filters, &no_exif_config, show_progress) {
             Ok(_) => {}
             Err(_) => {}
         }
