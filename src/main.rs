@@ -29,6 +29,7 @@ const DEST_PATH_ARG: &str = "dest-dir";
 
 const DIAG_COMMAND: &str = "diag";
 
+const SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG: &str = "skip-dir-names-for-date-extract";
 const DONT_EXTRACT_DATE_FROM_PATH_FLAG: &str = "dont-extract-date-from-path";
 
 /// Force year for files without EXIF or without 'Date created' exif-property
@@ -45,6 +46,15 @@ fn main() {
         .help("don't extract date from file path for files without EXIF.")
         .long(DONT_EXTRACT_DATE_FROM_PATH_FLAG)
         .takes_value(false)
+        .required(false);
+
+    let skip_dir_names_for_date_extract_arg = Arg::with_name(
+        SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG
+        )
+        .help("skip directory names for date extraction in paths which start with <mask>. \
+                  Masks should be separated with comma; Example: takeout-,backup")
+        .long(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG)
+        .takes_value(true).empty_values(false)
         .required(false);
 
     let matches = App::new("imgtag")
@@ -92,6 +102,7 @@ fn main() {
                     .takes_value(true).required(true)
             )
             .arg(dont_extract_date_from_path_arg)
+            .arg(skip_dir_names_for_date_extract_arg)
         )
         .get_matches();
 
@@ -99,12 +110,8 @@ fn main() {
     let logging_config = get_logging_config(logging_level);
     log4rs::init_config(logging_config).unwrap();
 
-    let mut command_matches = false;
-
     match matches.subcommand_matches(REORGANIZE_COMMAND) {
         Some(args) => {
-            command_matches = true;
-
             let extract_dates_from_path = !args.is_present(DONT_EXTRACT_DATE_FROM_PATH_FLAG);
             info!("extract dates from path: {}", extract_dates_from_path);
             println!("extract dates from path: {}", extract_dates_from_path);
@@ -126,6 +133,7 @@ fn main() {
 
             let no_exif_config: NoExifConfig = NoExifConfig {
                 extract_dates_from_path,
+                skip_dir_names_for_date_extract: Vec::new(),
                 force_year: force_year_for_unknown,
                 year
             };
@@ -152,11 +160,18 @@ fn main() {
 
     match matches.subcommand_matches(DIAG_COMMAND) {
         Some(args) => {
-            command_matches = true;
-
             let extract_dates_from_path = !args.is_present(DONT_EXTRACT_DATE_FROM_PATH_FLAG);
             info!("extract dates from path: {}", extract_dates_from_path);
             println!("extract dates from path: {}", extract_dates_from_path);
+
+            let skip_dir_names_for_date_extract: Vec<String> = if args.is_present(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG) {
+                let arg_str = args.value_of(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG).unwrap_or("");
+                let masks: Vec<&str> = arg_str.split(",").collect();
+                masks.iter().map(|mask| String::from(*mask)).collect()
+
+            } else {
+                Vec::new()
+            };
 
             let src_path: &str = args.value_of(SRC_PATH_ARG)
                                      .expect("invalid value for src-path argument");
@@ -165,10 +180,11 @@ fn main() {
 
             let ext_filters: Vec<String> = get_extension_filters();
 
-            println!("Getting files list..");
+            print!("Getting files list..");
 
             match diag_path(src_path, &ext_filters,
-                            extract_dates_from_path, show_diag_progress) {
+                            extract_dates_from_path,
+                            skip_dir_names_for_date_extract, show_diag_progress) {
                 Ok(diag_report) => {
                     println!("\rFiles total: {}", diag_report.files_total);
 
@@ -193,9 +209,7 @@ fn main() {
         None => {}
     }
 
-    if !command_matches {
-        println!("{}", matches.usage());
-    }
+    println!("{}", matches.usage());
 }
 
 fn get_extension_filters() -> Vec<String> {

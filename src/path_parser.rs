@@ -1,6 +1,7 @@
 pub mod path_parser {
     use chrono::{NaiveDate};
     use regex::Regex;
+    use std::path::PathBuf;
 
     const SOLID_DATE_FORMAT: &str = "%Y%m%d";
     const SOLID_REGEX_PATTERN: &str = "(\\d{4}\\d{2}\\d{2})";
@@ -29,6 +30,36 @@ pub mod path_parser {
         }
 
         results
+    }
+
+    pub fn get_path_without_dir_names(path: &str, skip_folder_names: &Vec<String>) -> String {
+        let path_separator = std::path::MAIN_SEPARATOR;
+
+        let file_path_parts: Vec<&str> = path.split(path_separator).collect();
+
+        let mut new_path: PathBuf = PathBuf::new();
+
+        for file_part in file_path_parts.iter() {
+            let file_part_in_lowercase = file_part.to_lowercase();
+
+            let mut pattern_found = false;
+
+            for folder_name in skip_folder_names.iter() {
+                let mask_in_lowercase = folder_name.to_lowercase();
+                if file_part_in_lowercase.starts_with(&mask_in_lowercase) {
+                    pattern_found = true;
+                    break;
+                }
+            }
+
+            if !pattern_found {
+                new_path = new_path.join(file_part);
+            }
+        }
+
+        let sanitized_path: &str = new_path.to_str().unwrap_or("");
+
+        String::from(sanitized_path)
     }
 
     fn extract_dates_from_path(pattern: &str, date_format: &str, path: &str) -> Vec<NaiveDate> {

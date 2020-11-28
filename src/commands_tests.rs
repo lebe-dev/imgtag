@@ -18,6 +18,7 @@ pub mod commands_tests {
 
         let no_exif_config = NoExifConfig {
             extract_dates_from_path: true,
+            skip_dir_names_for_date_extract: Vec::new(),
             force_year: false,
             year: 0
         };
@@ -42,6 +43,7 @@ pub mod commands_tests {
 
         let no_exif_config = NoExifConfig {
             extract_dates_from_path: false,
+            skip_dir_names_for_date_extract: Vec::new(),
             force_year: false,
             year: 0
         };
@@ -69,6 +71,7 @@ pub mod commands_tests {
 
         let no_exif_config = NoExifConfig {
             extract_dates_from_path: false,
+            skip_dir_names_for_date_extract: Vec::new(),
             force_year: false,
             year: 0
         };

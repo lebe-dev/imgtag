@@ -1,7 +1,21 @@
 #[cfg(test)]
 pub mod path_parser_tests {
-    use crate::path_parser::path_parser::get_dates_from_path;
+    use crate::path_parser::path_parser::{get_dates_from_path, get_path_without_dir_names};
     use chrono::{Datelike, NaiveDate};
+
+    #[test]
+    fn test_get_path_without_dir_names() {
+        let masks: Vec<String> = vec![String::from("Takeout-"), String::from("backup")];
+
+        let sep = std::path::MAIN_SEPARATOR;
+
+        let path = format!("Takeout-20201113{}2019-04-13{}backup20200310{}2019-11-14__abc.jpg", sep, sep, sep);
+
+        let result = get_path_without_dir_names(&path, &masks);
+
+        let expected_path = format!("2019-04-13{}2019-11-14__abc.jpg", sep);
+        assert_eq!(result, expected_path);
+    }
 
     #[test]
     fn dates_in_yyyymmdd_should_be_extracted() {
