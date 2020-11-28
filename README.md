@@ -11,10 +11,14 @@
    ГГГГ/МЕСЯЦ/ГГГГ-ММ-ДД__ЧЧ-ММ-СС__имя-файла.jpg
    ```
 
-## С чего начать
+## Команды
+
+### Копирование файлов согласно структуре
+
+Команда `reorganize` позволяет структурировать исходный файловый архив по датам в каталоге назначения.
 
 ```
-imgtag [ОПЦИИ] <исходный-каталог> <каталог-назначения>
+imgtag reorganize [ОПЦИИ] <исходный-каталог> <каталог-назначения>
 ```
 
 Пример:
@@ -28,6 +32,28 @@ imgtag /home/user/camera /data/output
 ```
 /data/output/2019/Июль/2019-07-13__13-12-57__IMG39284.jpg
 ```
+
+### Диагностика каталога
+
+Команда `diag` обнаруживает файлы без EXIF и для которых не удалось восстановить дату по именам каталогов.
+
+Пример использования:
+
+```
+imgtag.exe diag --skip-dir-names-for-date-extract takeout e:\tmp\sources
+extract dates from path: true
+Started: Sat, 28 Nov 2020 20:46:20 +0300
+Getting files list..
+Files total: 151515 (with issues: 28)
+---
+Unable to determine date for file(s):
+e:\sources\takeout-20201103T072301Z-002\Takeout\Google Фото\id\e5eaK_m3-8Y.jpg
+e:\sources\takeout-20201103T072301Z-002\Takeout\Google Фото\id\gen6_0036.micro.jpg
+e:\sources\takeout-20201103T072301Z-002\Takeout\Google Фото\id\i-137.jpg
+e:\sources\takeout-20201103T072301Z-002\Takeout\Google Фото\id\i-67.jpg
+...
+```
+
 
 ## Опции
 
