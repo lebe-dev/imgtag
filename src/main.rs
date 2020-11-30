@@ -113,14 +113,7 @@ fn main() {
             info!("extract dates from path: {}", extract_dates_from_path);
             println!("extract dates from path: {}", extract_dates_from_path);
 
-            let skip_dir_names_for_date_extract: Vec<String> = if args.is_present(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG) {
-                let arg_str = args.value_of(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG).unwrap_or("");
-                let masks: Vec<&str> = arg_str.split(",").collect();
-                masks.iter().map(|mask| String::from(*mask)).collect()
-
-            } else {
-                Vec::new()
-            };
+            let skip_dir_names_for_date_extract: Vec<String> = get_dir_names_skip_masks(args);
 
             let src_path: &str = args.value_of(SRC_PATH_ARG)
                                      .expect("invalid value for src-path argument");
@@ -170,14 +163,7 @@ fn main() {
             info!("extract dates from path: {}", extract_dates_from_path);
             println!("extract dates from path: {}", extract_dates_from_path);
 
-            let skip_dir_names_for_date_extract: Vec<String> = if args.is_present(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG) {
-                let arg_str = args.value_of(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG).unwrap_or("");
-                let masks: Vec<&str> = arg_str.split(",").collect();
-                masks.iter().map(|mask| String::from(*mask)).collect()
-
-            } else {
-                Vec::new()
-            };
+            let skip_dir_names_for_date_extract: Vec<String> = get_dir_names_skip_masks(args);
 
             let src_path: &str = args.value_of(SRC_PATH_ARG)
                                      .expect("invalid value for src-path argument");
@@ -216,6 +202,17 @@ fn main() {
     }
 
     println!("{}", matches.usage());
+}
+
+fn get_dir_names_skip_masks<'a>(arg_matches: &'a ArgMatches) -> Vec<String> {
+    if arg_matches.is_present(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG) {
+        let arg_str = arg_matches.value_of(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG).unwrap_or("");
+        let masks: Vec<&str> = arg_str.split(",").collect();
+        masks.iter().map(|mask| String::from(*mask)).collect()
+
+    } else {
+        Vec::new()
+    }
 }
 
 fn get_extension_filters() -> Vec<String> {
