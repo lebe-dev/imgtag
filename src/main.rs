@@ -58,7 +58,7 @@ fn main() {
         .required(false);
 
     let matches = App::new("imgtag")
-        .version("0.3.0")
+        .version("0.4.0")
         .about("Image files hierarchy tool")
         .arg(
             Arg::with_name(LOG_LEVEL_ARGUMENT)
