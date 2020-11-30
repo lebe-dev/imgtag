@@ -2,7 +2,7 @@ pub mod commands {
     use std::{io, fs};
     use std::path::Path;
     use chrono::{NaiveDateTime, Datelike, NaiveDate, Local, TimeZone};
-    use crate::path_parser::path_parser::get_dates_from_path;
+    use crate::path_parser::path_parser::{get_dates_from_path, get_path_without_dir_names};
     use std::io::{Error, ErrorKind};
     use crate::domain::domain::NoExifConfig;
     use crate::files::files::get_files_from_path;
@@ -131,7 +131,12 @@ pub mod commands {
                             &result_file_path)
 
         } else {
-            let extracted_dates = get_dates_from_path(&file_path_str);
+            let sanitized_path: String = get_path_without_dir_names(
+                file_path_str,
+                &no_exif_config.skip_dir_names_for_date_extract
+            );
+
+            let extracted_dates = get_dates_from_path(&sanitized_path);
 
             if !extracted_dates.is_empty() {
                 let file_date = extracted_dates.last().unwrap();

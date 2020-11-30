@@ -113,6 +113,15 @@ fn main() {
             info!("extract dates from path: {}", extract_dates_from_path);
             println!("extract dates from path: {}", extract_dates_from_path);
 
+            let skip_dir_names_for_date_extract: Vec<String> = if args.is_present(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG) {
+                let arg_str = args.value_of(SKIP_DIR_NAMES_FOR_DATE_EXTRACT_ARG).unwrap_or("");
+                let masks: Vec<&str> = arg_str.split(",").collect();
+                masks.iter().map(|mask| String::from(*mask)).collect()
+
+            } else {
+                Vec::new()
+            };
+
             let src_path: &str = args.value_of(SRC_PATH_ARG)
                                      .expect("invalid value for src-path argument");
 
@@ -130,7 +139,7 @@ fn main() {
 
             let no_exif_config: NoExifConfig = NoExifConfig {
                 extract_dates_from_path,
-                skip_dir_names_for_date_extract: Vec::new(),
+                skip_dir_names_for_date_extract,
                 force_year: force_year_for_unknown,
                 year
             };
