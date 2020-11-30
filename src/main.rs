@@ -24,6 +24,7 @@ mod exif;
 mod exif_tests;
 
 const REORG_COMMAND: &str = "reorg";
+
 const SRC_PATH_ARG: &str = "src-dir";
 const DEST_PATH_ARG: &str = "dest-dir";
 
@@ -42,6 +43,11 @@ const LOG_LEVEL_DEFAULT_VALUE: &str = "info";
 const ERROR_EXIT_CODE: i32 = 1;
 
 fn main() {
+    let src_path_arg = Arg::with_name(SRC_PATH_ARG)
+                                .help("source path")
+                                .value_name(SRC_PATH_ARG)
+                                .takes_value(true).required(true);
+
     let dont_extract_date_from_path_arg = Arg::with_name(DONT_EXTRACT_DATE_FROM_PATH_FLAG)
         .help("don't extract date from file path for files without EXIF.")
         .long(DONT_EXTRACT_DATE_FROM_PATH_FLAG)
@@ -72,12 +78,7 @@ fn main() {
             .about("reorganize JPG\\TIFF files in hierarchy YYYY/Month/YYYY-MM-DD__filename.jpg or \
                 YYYY/Month/YYYY-MM-DD__HH-MM-SS__filename.jpg \
             Extract picture taken date from EXIF meta-data.")
-            .arg(
-                Arg::with_name(SRC_PATH_ARG)
-                    .help("source path")
-                    .value_name(SRC_PATH_ARG)
-                    .takes_value(true).required(true)
-            )
+            .arg(&src_path_arg)
             .arg(
                 Arg::with_name(DEST_PATH_ARG)
                     .help("destination path")
@@ -96,12 +97,7 @@ fn main() {
         )
         .subcommand(SubCommand::with_name(DIAG_COMMAND)
                         .about("do diagnostics without modifications in filesystem.")
-            .arg(
-                Arg::with_name(SRC_PATH_ARG)
-                    .help("source path")
-                    .value_name(SRC_PATH_ARG)
-                    .takes_value(true).required(true)
-            )
+            .arg(&src_path_arg)
             .arg(dont_extract_date_from_path_arg)
             .arg(skip_dir_names_for_date_extract_arg)
         )
