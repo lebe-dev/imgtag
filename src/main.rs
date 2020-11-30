@@ -23,7 +23,7 @@ mod files;
 mod exif;
 mod exif_tests;
 
-const REORGANIZE_COMMAND: &str = "reorganize";
+const REORG_COMMAND: &str = "reorg";
 const SRC_PATH_ARG: &str = "src-dir";
 const DEST_PATH_ARG: &str = "dest-dir";
 
@@ -68,7 +68,7 @@ fn main() {
                 .takes_value(true).required(false)
                 .default_value(LOG_LEVEL_DEFAULT_VALUE)
         )
-        .subcommand(SubCommand::with_name(REORGANIZE_COMMAND)
+        .subcommand(SubCommand::with_name(REORG_COMMAND)
             .about("reorganize JPG\\TIFF files in hierarchy YYYY/Month/YYYY-MM-DD__filename.jpg or \
                 YYYY/Month/YYYY-MM-DD__HH-MM-SS__filename.jpg \
             Extract picture taken date from EXIF meta-data.")
@@ -85,6 +85,7 @@ fn main() {
                     .takes_value(true).required(true)
             )
             .arg(&dont_extract_date_from_path_arg)
+            .arg(&skip_dir_names_for_date_extract_arg)
             .arg(
                 Arg::with_name(FORCE_YEAR_OPTION)
                     .help("force year for files without EXIF or without 'Date created' exif-property")
@@ -110,7 +111,7 @@ fn main() {
     let logging_config = get_logging_config(logging_level);
     log4rs::init_config(logging_config).unwrap();
 
-    match matches.subcommand_matches(REORGANIZE_COMMAND) {
+    match matches.subcommand_matches(REORG_COMMAND) {
         Some(args) => {
             let extract_dates_from_path = !args.is_present(DONT_EXTRACT_DATE_FROM_PATH_FLAG);
             info!("extract dates from path: {}", extract_dates_from_path);
